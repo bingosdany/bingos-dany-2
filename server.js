@@ -3,7 +3,11 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const { Pool } = require("pg");
+const multer = require("multer");
 require("dotenv").config();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -16,12 +20,13 @@ const pool = new Pool({
   connectionString: process.env.PG_URL,
 });
 
-app.post("/enviar", async (req, res) => {
-  const { nombre, correo, cantidad, archivo } = req.body; // En producción, manejar archivos reales
+app.post("/enviar", multer.single("archivo"), async (req, res) => {
+  const { nombre, correo, cantidad } = req.body;
+const archivo = req.file ? req.file.originalname : "archivo.jpg";
   try {
     await pool.query(
       "INSERT INTO usuarios (nombre, correo, cantidad, comprobante, estado) VALUES ($1, $2, $3, $4, $5)",
-      [nombre, correo, cantidad, archivo || "archivo.jpg", "pendiente"]
+      [nombre, correo, cantidad, archivo, "pendiente"]
     );
     res.status(200).send("Enviado");
   } catch (err) {
