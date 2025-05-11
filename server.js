@@ -14,7 +14,6 @@ const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static("public"));
 
 const pool = new Pool({
   connectionString: process.env.PG_URL,
@@ -49,3 +48,4 @@ app.get("/progreso", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+app.use(express.static("public"));
